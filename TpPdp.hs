@@ -4,12 +4,12 @@ type Instruccion = Microprocesador -> Microprocesador
 data Microprocesador = Microprocesador{posiciones :: [Int], acumuladorA :: Int, acumuladorB :: Int, programCounter :: Int, ultimoError :: String, memoriaPrograma :: [Instruccion]} deriving(Show)
 
 xt8088 = Microprocesador {posiciones = memoriaVacia, acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
-at8086 = Microprocesador {posiciones = [1..20], acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [(valorToAcumuladorB 0), (valorToAcumuladorA 2), divide]}
+at8086 = Microprocesador {posiciones = [1..20], acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [nop.(valorToAcumuladorB 0), nop.(valorToAcumuladorA 2), divide]}
 fp20 = Microprocesador {posiciones = memoriaVacia, acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
 
 --Instrucciones del microprocesador
 nop :: Instruccion
-nop = aumentarPC 
+nop = aumentarPC
 
 lodv :: Int -> Instruccion
 lodv valor = aumentarPC.(valorToAcumuladorA valor)
@@ -85,22 +85,11 @@ dividirDosPorCero = ejecutarInstrucciones [(valorToAcumuladorB 0), (valorToAcumu
 sumarDiezaVeintidos :: Microprocesador -> Microprocesador
 sumarDiezaVeintidos = ejecutarInstrucciones [(lodv 10), swap, (lodv 22), add]
 
---Entrega dos
-
---ejecutarPrograma :: Instruccion
---ejecutarPrograma microprocesador = ejcutarProgramaHasta (lugarError microprocesador) (memoriaPrograma microprocesador) microprocesador
-
---ejecutarProgramaHasta :: Int -> [Instruccion] -> Instruccion
---ejecutarProgramaHasta numeroError listaInstrucciones = (take numeroError)
-
---lugarError :: Microprocesador -> Int
---lugarError unMicroprocesador = find 
-
-ep unMicroprocesador = ejecutarPrograma (listaInstrucciones unMicroprocesador) unMicroprocesador
+ejecutarProgramaHastaError unMicroprocesador = ejecutarPrograma (memoriaPrograma unMicroprocesador) unMicroprocesador
 
 ejecutarPrograma :: [Instruccion] -> Instruccion
 ejecutarPrograma [] unMicroprocesador = unMicroprocesador
-ejecutarPrograma (x:xs) unMicroprocesador | instruccionConError unMicroprocesador x = unMicroprocesador | otherwise = ejecutarPrograma xs unMicroprocesador
+ejecutarPrograma (x:xs) unMicroprocesador | instruccionConError unMicroprocesador x = unMicroprocesador | otherwise = ejecutarPrograma xs (x unMicroprocesador)
 
 instruccionConError :: Microprocesador -> Instruccion ->  Bool
 instruccionConError unMicroprocesador instruccion = tieneError.ultimoError.instruccion $ unMicroprocesador
@@ -108,12 +97,3 @@ instruccionConError unMicroprocesador instruccion = tieneError.ultimoError.instr
 tieneError :: String -> Bool
 tieneError [] = False
 tieneError (x:xs) = True
-
-
-
-
-
-
-
-
-
