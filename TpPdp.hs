@@ -87,8 +87,27 @@ sumarDiezaVeintidos = ejecutarInstrucciones [(lodv 10), swap, (lodv 22), add]
 
 --Entrega dos
 
-ejecutarPrograma :: Instruccion
-ejecutarPrograma microprocesador = (ejecutarInstrucciones (memoriaPrograma microprocesador)) microprocesador
+--ejecutarPrograma :: Instruccion
+--ejecutarPrograma microprocesador = ejcutarProgramaHasta (lugarError microprocesador) (memoriaPrograma microprocesador) microprocesador
+
+--ejecutarProgramaHasta :: Int -> [Instruccion] -> Instruccion
+--ejecutarProgramaHasta numeroError listaInstrucciones = (take numeroError)
+
+--lugarError :: Microprocesador -> Int
+--lugarError unMicroprocesador = find 
+
+ep unMicroprocesador = ejecutarPrograma (listaInstrucciones unMicroprocesador) unMicroprocesador
+
+ejecutarPrograma :: [Instruccion] -> Instruccion
+ejecutarPrograma [] unMicroprocesador = unMicroprocesador
+ejecutarPrograma (x:xs) unMicroprocesador | instruccionConError unMicroprocesador x = unMicroprocesador | otherwise = ejecutarPrograma xs unMicroprocesador
+
+instruccionConError :: Microprocesador -> Instruccion ->  Bool
+instruccionConError unMicroprocesador instruccion = tieneError.ultimoError.instruccion $ unMicroprocesador
+
+tieneError :: String -> Bool
+tieneError [] = False
+tieneError (x:xs) = True
 
 
 
