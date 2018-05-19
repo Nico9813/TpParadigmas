@@ -4,12 +4,13 @@ type Instruccion = Microprocesador -> Microprocesador
 data Microprocesador = Microprocesador{posiciones :: [Int], acumuladorA :: Int, acumuladorB :: Int, programCounter :: Int, ultimoError :: String, memoriaPrograma :: [Instruccion]} deriving(Show)
 
 xt8088 = Microprocesador {posiciones = memoriaVacia, acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
-at8086 = Microprocesador {posiciones = [1..20], acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [nop.(valorToAcumuladorB 0), nop.(valorToAcumuladorA 2), divide]}
-fp20 = Microprocesador {posiciones = memoriaVacia, acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
+at8086 = Microprocesador {posiciones = [1..20], acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [(valorToAcumuladorB 0), (valorToAcumuladorA 2), divide]}
+fp20 = Microprocesador {posiciones = [2,1], acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
+i9 = Microprocesador {posiciones = memoriaInfinita, acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
 
 --Instrucciones del microprocesador
 nop :: Instruccion
-nop = aumentarPC
+nop = aumentarPC 
 
 lodv :: Int -> Instruccion
 lodv valor = aumentarPC.(valorToAcumuladorA valor)
@@ -37,6 +38,9 @@ aumentarPC microprocesador = microprocesador {programCounter = (programCounter m
 
 memoriaVacia :: [Int]
 memoriaVacia = take 1024 (repeat 0) -- Las direcciones de memoria van de 1 a 1024
+
+memoriaInfinita :: [Int]
+memoriaInfinita = repeat 0 -- Memoria infinita inicializada 0
 
 ejecutarInstrucciones ::[Instruccion]->Microprocesador->Microprocesador
 ejecutarInstrucciones listaInstrucciones = (componerInstrucciones listaInstrucciones)
@@ -85,11 +89,19 @@ dividirDosPorCero = ejecutarInstrucciones [(valorToAcumuladorB 0), (valorToAcumu
 sumarDiezaVeintidos :: Microprocesador -> Microprocesador
 sumarDiezaVeintidos = ejecutarInstrucciones [(lodv 10), swap, (lodv 22), add]
 
-ejecutarProgramaHastaError unMicroprocesador = ejecutarPrograma (memoriaPrograma unMicroprocesador) unMicroprocesador
+--Entrega 2
 
-ejecutarPrograma :: [Instruccion] -> Instruccion
-ejecutarPrograma [] unMicroprocesador = unMicroprocesador
-ejecutarPrograma (x:xs) unMicroprocesador | instruccionConError unMicroprocesador x = unMicroprocesador | otherwise = ejecutarPrograma xs (x unMicroprocesador)
+--3.2
+
+cargarPrograma :: [Instruccion] -> Microprocesador -> Microprocesador
+cargarPrograma programa unMicroprocesador = unMicroprocesador{memoriaPrograma = programa}
+
+ejecutarPrograma :: Instruccion
+ejecutarPrograma unMicroprocesador = ejecutarProgramaHastaError (memoriaPrograma unMicroprocesador) unMicroprocesador
+
+ejecutarProgramaHastaError :: [Instruccion] -> Instruccion
+ejecutarProgramaHastaError [] unMicroprocesador = unMicroprocesador
+ejecutarProgramaHastaError (x:xs) unMicroprocesador | instruccionConError unMicroprocesador x = unMicroprocesador | otherwise = ejecutarProgramaHastaError xs (x unMicroprocesador)
 
 instruccionConError :: Microprocesador -> Instruccion ->  Bool
 instruccionConError unMicroprocesador instruccion = tieneError.ultimoError.instruccion $ unMicroprocesador
@@ -97,3 +109,43 @@ instruccionConError unMicroprocesador instruccion = tieneError.ultimoError.instr
 tieneError :: String -> Bool
 tieneError [] = False
 tieneError (x:xs) = True
+
+--3.4 (MAXI DELEGA ESTO)
+
+depurar :: Instruccion
+depurar unMicroprocesador = unMicroprocesador{memoriaPrograma = depurarPrograma (memoriaPrograma unMicroprocesador)}
+
+depurarPrograma :: [Instruccion] -> [Instruccion]
+depurarPrograma = filter (not.esInstruccionInnecesaria)
+
+esInstruccionInnecesaria :: Instruccion -> Bool
+esInstruccionInnecesaria instruccion = ((==0).acumuladorA.instruccion) xt8088 && ((==0).acumuladorB.instruccion) xt8088 && all (==0) ((posiciones.instruccion) xt8088)
+
+--3.5
+
+memoriaOrdenada :: Microprocesador -> Bool
+memoriaOrdenada unMicroprocesador = esListaOrdenada (posiciones unMicroprocesador)
+
+esListaOrdenada :: [Int] -> Bool
+esListaOrdenada [x] = True
+esListaOrdenada (x:xs) = x <= head xs && esListaOrdenada xs
+
+--3.6
+
+cargarProgramaAMemoriaInfinita :: [Instruccion] -> [Instruccion]
+cargarProgramaAMemoriaInfinita programa = (memoriaPrograma.(cargarPrograma programa)) i9
+--El programa se carga igualmente solo que al querer mostrar todo el microprocesador la lista nunca termina de mostrarse, en este programa de prueba se ve que el programa esta cargado
+
+ejecutarProgramaAMemoriaInfinita :: [Instruccion] -> Int
+ejecutarProgramaAMemoriaInfinita programa= (acumuladorA.ejecutarPrograma.(cargarPrograma programa)) i9
+--Es este programa de muestra se ve que el programa se ejecuta normalmente
+
+--Al preguntar si la memoria esta ordenada el programa nunca va a terminar de evaluar al no llegar a una condicion de corte
+
+--MATI ENCARGATE DE ESTO POR FAVOR 3.6 PUNTO 4
+
+--3.3
+
+ifnz :: [Instruccion] -> Instruccion
+ifnz listaInstrucciones unMicroprocesador | ((==0).acumuladorA) unMicroprocesador = unMicroprocesador | otherwise = ejecutarProgramaHastaError listaInstrucciones unMicroprocesador
+
