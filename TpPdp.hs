@@ -6,7 +6,7 @@ data Microprocesador = Microprocesador{posiciones :: [Int], acumuladorA :: Int, 
 xt8088 = Microprocesador {posiciones = memoriaVacia, acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
 at8086 = Microprocesador {posiciones = [1..20], acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [(valorToAcumuladorB 0), (valorToAcumuladorA 2), divide]}
 fp20 = Microprocesador {posiciones = [2,1], acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
-i9 = Microprocesador {posiciones = memoriaInfinita, acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop
+i9 = Microprocesador {posiciones = memoriaInfinita, acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
 --Instrucciones del microprocesador
 nop :: Instruccion
 nop = aumentarPC
