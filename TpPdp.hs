@@ -46,7 +46,7 @@ ejecutarInstrucciones ::[Instruccion]->Microprocesador->Microprocesador
 ejecutarInstrucciones listaInstrucciones = (componerInstrucciones listaInstrucciones)
 
 componerInstrucciones :: [Instruccion] -> Instruccion
-componerInstrucciones = foldl (.) id
+componerInstrucciones = foldr (.) id
 
 intercambio :: Int -> Int -> Instruccion
 intercambio acumuladorA acumuladorB = (valorToAcumuladorA (acumuladorB)).(valorToAcumuladorB (acumuladorA))
