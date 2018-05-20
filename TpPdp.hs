@@ -153,4 +153,4 @@ ejecutarProgramaAMemoriaInfinita programa= (acumuladorA.ejecutarPrograma.(cargar
 
 --Al preguntar si la memoria esta ordenada el programa nunca va a terminar de evaluar al no llegar a una condicion de corte
 
---
+--La lista infinita es algo definido en haskell que no causa error, por eso podemos tener un microcontrolador con "memoria infinita" y es valido. Sin embargo, al querer mostrar una lista infinita completa u operar sobre absolutamente todos sus elementos, la ejecución no se detiene nunca.
