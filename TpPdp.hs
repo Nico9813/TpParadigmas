@@ -6,11 +6,10 @@ data Microprocesador = Microprocesador{posiciones :: [Int], acumuladorA :: Int, 
 xt8088 = Microprocesador {posiciones = memoriaVacia, acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
 at8086 = Microprocesador {posiciones = [1..20], acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [(valorToAcumuladorB 0), (valorToAcumuladorA 2), divide]}
 fp20 = Microprocesador {posiciones = [2,1], acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
-i9 = Microprocesador {posiciones = memoriaInfinita, acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
-
+i9 = Microprocesador {posiciones = memoriaInfinita, acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop
 --Instrucciones del microprocesador
 nop :: Instruccion
-nop = aumentarPC 
+nop = aumentarPC
 
 lodv :: Int -> Instruccion
 lodv valor = aumentarPC.(valorToAcumuladorA valor)
@@ -104,7 +103,7 @@ ejecutarPrograma unMicroprocesador = ejecutarProgramaHastaError (memoriaPrograma
 
 ejecutarProgramaHastaError :: [Instruccion] -> Instruccion
 ejecutarProgramaHastaError [] unMicroprocesador = unMicroprocesador
-ejecutarProgramaHastaError (x:xs) unMicroprocesador | instruccionConError unMicroprocesador x = unMicroprocesador | otherwise = ejecutarProgramaHastaError xs (x unMicroprocesador)
+ejecutarProgramaHastaError (x:xs) unMicroprocesador | instruccionConError unMicroprocesador x = x unMicroprocesador | otherwise = ejecutarProgramaHastaError xs (x unMicroprocesador)
 
 instruccionConError :: Microprocesador -> Instruccion ->  Bool
 instruccionConError unMicroprocesador instruccion = tieneError.ultimoError.instruccion $ unMicroprocesador
