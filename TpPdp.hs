@@ -3,9 +3,10 @@ import Text.Show.Functions
 type Instruccion = Microprocesador -> Microprocesador
 data Microprocesador = Microprocesador{posiciones :: [Int], acumuladorA :: Int, acumuladorB :: Int, programCounter :: Int, ultimoError :: String, memoriaPrograma :: [Instruccion]} deriving(Show)
 
-xt8088 = Microprocesador {posiciones = memoriaVacia, acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = sumarDiezaVeintidos }
+xt8088 = Microprocesador {posiciones = memoriaVacia, acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [lodv 3, swap] }
 at8086 = Microprocesador {posiciones = [1..20], acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = dividirDosPorCero }
-fp20 = Microprocesador {posiciones = [2,1], acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
+fp20 = Microprocesador {posiciones = [2,1], acumuladorA = 7, acumuladorB = 24, programCounter = 0, ultimoError = [], memoriaPrograma = [lodv 3, swap]}
+microDesorden = Microprocesador {posiciones = [2, 5, 1, 0, 6, 9], acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = []}  
 i9 = Microprocesador {posiciones = memoriaInfinita, acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
 --Instrucciones del microprocesador
 nop :: Instruccion
@@ -21,7 +22,7 @@ add ::Instruccion
 add =  (aumentarPC).(valorToAcumuladorB 0).(sumarAcumuladores)
 
 divide :: Instruccion
-divide (Microprocesador posiciones acumuladorA 0 programCounter ultimoError programa) = (Microprocesador posiciones acumuladorA 0 programCounter "DIVISION BY ZERO" programa)
+divide (Microprocesador posiciones acumuladorA 0 programCounter ultimoError programa) = (Microprocesador posiciones acumuladorA 0 (programCounter + 1) "DIVISION BY ZERO" programa)
 divide microprocesador = (aumentarPC.(valorToAcumuladorB 0).(valorToAcumuladorA (dividirAcumuladores microprocesador))) microprocesador
 
 str :: Int-> Int-> Instruccion
@@ -90,7 +91,7 @@ aumentarTresVecesPC = ejecutarInstrucciones [nop,nop,nop]
 cargarPrograma :: [Instruccion] -> Microprocesador -> Microprocesador
 cargarPrograma programa unMicroprocesador = unMicroprocesador{memoriaPrograma = programa}
 
-dividirDosPorCero = [(valorToAcumuladorB 0),(valorToAcumuladorA 2),divide]
+dividirDosPorCero = [str 1 2, str 2 0, lod 2, swap, lod 1, divide]
 
 sumarDiezaVeintidos = [lodv 10,swap,lodv 22,add]
 
