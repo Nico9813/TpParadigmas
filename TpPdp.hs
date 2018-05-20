@@ -3,8 +3,8 @@ import Text.Show.Functions
 type Instruccion = Microprocesador -> Microprocesador
 data Microprocesador = Microprocesador{posiciones :: [Int], acumuladorA :: Int, acumuladorB :: Int, programCounter :: Int, ultimoError :: String, memoriaPrograma :: [Instruccion]} deriving(Show)
 
-xt8088 = Microprocesador {posiciones = memoriaVacia, acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
-at8086 = Microprocesador {posiciones = [1..20], acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [(valorToAcumuladorB 0), (valorToAcumuladorA 2), divide]}
+xt8088 = Microprocesador {posiciones = memoriaVacia, acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = sumarDiezaVeintidos }
+at8086 = Microprocesador {posiciones = [1..20], acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = dividirDosPorCero }
 fp20 = Microprocesador {posiciones = [2,1], acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
 i9 = Microprocesador {posiciones = memoriaInfinita, acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
 --Instrucciones del microprocesador
@@ -90,11 +90,9 @@ aumentarTresVecesPC = ejecutarInstrucciones [nop,nop,nop]
 cargarPrograma :: [Instruccion] -> Microprocesador -> Microprocesador
 cargarPrograma programa unMicroprocesador = unMicroprocesador{memoriaPrograma = programa}
 
-dividirDosPorCero :: Microprocesador -> Microprocesador
-dividirDosPorCero = ejecutarInstrucciones [(valorToAcumuladorB 0), (valorToAcumuladorA 2), divide]
+dividirDosPorCero = [(valorToAcumuladorB 0),(valorToAcumuladorA 2),divide]
 
-sumarDiezaVeintidos :: Microprocesador -> Microprocesador
-sumarDiezaVeintidos = ejecutarInstrucciones [(lodv 10), swap, (lodv 22), add]
+sumarDiezaVeintidos = [lodv 10,swap,lodv 22,add]
 
 --3.2
 
