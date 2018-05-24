@@ -100,20 +100,22 @@ sumarDiezaVeintidos = [lodv 10,swap,lodv 22,add]
 
 --3.2
 
-ejecutarPrograma :: Instruccion
-ejecutarPrograma unMicroprocesador = ejecutarProgramaHastaError (memoriaPrograma unMicroprocesador) unMicroprocesador
+ejecutarPrograma :: Microprocesador -> Microprocesador
+ejecutarPrograma unMicroprocesador = ejecutarProgramaHastaError unMicroprocesador (memoriaPrograma unMicroprocesador) 
 
-ejecutarProgramaHastaError :: [Instruccion] -> Instruccion
-ejecutarProgramaHastaError [] unMicroprocesador = unMicroprocesador
-ejecutarProgramaHastaError (x:xs) unMicroprocesador | instruccionConError unMicroprocesador x = x unMicroprocesador | otherwise = ejecutarProgramaHastaError xs (x unMicroprocesador)
+ejecutarProgramaHastaError :: Microprocesador -> [Instruccion] -> Microprocesador
+ejecutarProgramaHastaError unMicroprocesador listaInstrucciones = foldl (flip validarYAplicar) unMicroprocesador listaInstrucciones
+
+validarYAplicar :: Instruccion -> Microprocesador -> Microprocesador
+validarYAplicar instruccion unMicroprocesador | instruccionConError unMicroprocesador instruccion = unMicroprocesador{ultimoError="Error al ejecutar una instruccion del programa"} | ultimoError unMicroprocesador /= [] = unMicroprocesador | otherwise = instruccion unMicroprocesador
 
 instruccionConError :: Microprocesador -> Instruccion ->  Bool
-instruccionConError unMicroprocesador instruccion = (/="").ultimoError.instruccion $ unMicroprocesador
+instruccionConError unMicroprocesador instruccion = (/= "").ultimoError.instruccion $ unMicroprocesador
 
 --3.3
 
 ifnz :: [Instruccion] -> Instruccion
-ifnz listaInstrucciones unMicroprocesador | ((esCero).acumuladorA) unMicroprocesador = unMicroprocesador | otherwise = ejecutarProgramaHastaError listaInstrucciones unMicroprocesador
+ifnz listaInstrucciones unMicroprocesador | ((esCero).acumuladorA) unMicroprocesador = unMicroprocesador | otherwise = ejecutarProgramaHastaError unMicroprocesador listaInstrucciones
 
 --3.4
 
