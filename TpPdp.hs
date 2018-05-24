@@ -1,3 +1,4 @@
+--Frede
 import Text.Show.Functions
 import Data.List
 type Instruccion = Microprocesador -> Microprocesador
