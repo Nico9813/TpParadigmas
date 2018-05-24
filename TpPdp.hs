@@ -78,8 +78,8 @@ posteriorAddr = drop
 obtenerValorMemoria :: Int -> Microprocesador -> Int
 obtenerValorMemoria addr microprocesador = (posiciones microprocesador) !! (addr-1)
 
---esCero :: Eq a => a -> Bool
-esCero numero = 0== numero
+esCero :: (Num a,Eq a) => a -> Bool
+esCero numero = 0 == numero
 
 --Programas de prueba Entrega1
 
@@ -108,11 +108,7 @@ ejecutarProgramaHastaError [] unMicroprocesador = unMicroprocesador
 ejecutarProgramaHastaError (x:xs) unMicroprocesador | instruccionConError unMicroprocesador x = x unMicroprocesador | otherwise = ejecutarProgramaHastaError xs (x unMicroprocesador)
 
 instruccionConError :: Microprocesador -> Instruccion ->  Bool
-instruccionConError unMicroprocesador instruccion = tieneError.ultimoError.instruccion $ unMicroprocesador
-
-tieneError :: String -> Bool
-tieneError [] = False
-tieneError (x:xs) = True
+instruccionConError unMicroprocesador instruccion = (/="").ultimoError.instruccion $ unMicroprocesador
 
 --3.3
 
@@ -135,8 +131,8 @@ acumuladorQuedaEnCero acumulador instruccion = ((esCero).acumulador.instruccion)
 
 --3.5
 
---memoriaOrdenada :: Microprocesador -> Bool
---memoriaOrdenada unMicroprocesador = esListaOrdenada (posiciones unMicroprocesador)
+memoriaOrdenada :: Microprocesador -> Bool
+memoriaOrdenada unMicroprocesador = esListaOrdenada (posiciones unMicroprocesador)
 
 esListaOrdenada :: [Int] -> Bool
 esListaOrdenada lista = listasIguales lista (sort lista)
