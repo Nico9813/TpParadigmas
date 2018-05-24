@@ -1,12 +1,12 @@
 import Text.Show.Functions
-
+import Data.List
 type Instruccion = Microprocesador -> Microprocesador
 data Microprocesador = Microprocesador{posiciones :: [Int], acumuladorA :: Int, acumuladorB :: Int, programCounter :: Int, ultimoError :: String, memoriaPrograma :: [Instruccion]} deriving(Show)
 
 xt8088 = Microprocesador {posiciones = memoriaVacia, acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = [lodv 3, swap] }
 at8086 = Microprocesador {posiciones = [1..20], acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = dividirDosPorCero }
 fp20 = Microprocesador {posiciones = [2,1], acumuladorA = 7, acumuladorB = 24, programCounter = 0, ultimoError = [], memoriaPrograma = [lodv 3, swap]}
-microDesorden = Microprocesador {posiciones = [2, 5, 1, 0, 6, 9], acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = []}  
+microDesorden = Microprocesador {posiciones = [2, 5, 1, 0, 6, 9], acumuladorA = 0, acumuladorB = 0, programCounter = 0, ultimoError = [], memoriaPrograma = []}
 i9 = Microprocesador {posiciones = memoriaInfinita, acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
 --Instrucciones del microprocesador
 nop :: Instruccion
@@ -78,6 +78,9 @@ posteriorAddr = drop
 obtenerValorMemoria :: Int -> Microprocesador -> Int
 obtenerValorMemoria addr microprocesador = (posiciones microprocesador) !! (addr-1)
 
+--esCero :: Eq a => a -> Bool
+esCero numero = 0== numero
+
 --Programas de prueba Entrega1
 
 aumentarTresVecesPC :: Microprocesador -> Microprocesador
@@ -114,7 +117,7 @@ tieneError (x:xs) = True
 --3.3
 
 ifnz :: [Instruccion] -> Instruccion
-ifnz listaInstrucciones unMicroprocesador | ((==0).acumuladorA) unMicroprocesador = unMicroprocesador | otherwise = ejecutarProgramaHastaError listaInstrucciones unMicroprocesador
+ifnz listaInstrucciones unMicroprocesador | ((esCero).acumuladorA) unMicroprocesador = unMicroprocesador | otherwise = ejecutarProgramaHastaError listaInstrucciones unMicroprocesador
 
 --3.4
 
@@ -125,19 +128,21 @@ depurarPrograma :: [Instruccion] -> [Instruccion]
 depurarPrograma = filter (not.esInstruccionInnecesaria)
 
 esInstruccionInnecesaria :: Instruccion -> Bool
-esInstruccionInnecesaria instruccion = (acumuladorQuedaEnCero acumuladorA instruccion)  && (acumuladorQuedaEnCero acumuladorB instruccion) && (all (==0) ((posiciones.instruccion) xt8088))
+esInstruccionInnecesaria instruccion = (acumuladorQuedaEnCero acumuladorA instruccion)  && (acumuladorQuedaEnCero acumuladorB instruccion) && (all (esCero) ((posiciones.instruccion) xt8088))
 
 acumuladorQuedaEnCero :: (Microprocesador -> Int) -> Instruccion -> Bool
-acumuladorQuedaEnCero acumulador instruccion = ((==0).acumulador.instruccion) xt8088
+acumuladorQuedaEnCero acumulador instruccion = ((esCero).acumulador.instruccion) xt8088
 
 --3.5
 
-memoriaOrdenada :: Microprocesador -> Bool
-memoriaOrdenada unMicroprocesador = esListaOrdenada (posiciones unMicroprocesador)
+--memoriaOrdenada :: Microprocesador -> Bool
+--memoriaOrdenada unMicroprocesador = esListaOrdenada (posiciones unMicroprocesador)
 
 esListaOrdenada :: [Int] -> Bool
-esListaOrdenada [x] = True
-esListaOrdenada (x:xs) = x <= head xs && esListaOrdenada xs
+esListaOrdenada lista = listasIguales lista (sort lista)
+
+listasIguales :: [Int]->[Int]->Bool
+listasIguales lista1 lista2 = all (uncurry (==)).(zip lista1) $ lista2
 
 --3.6
 
