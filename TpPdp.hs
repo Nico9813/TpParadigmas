@@ -1,3 +1,4 @@
+--Frede
 import Text.Show.Functions
 import Data.List
 type Instruccion = Microprocesador -> Microprocesador
@@ -104,7 +105,7 @@ sumarDiezaVeintidos = [lodv 10,swap,lodv 22,add]
 --3.2
 
 ejecutarPrograma :: Microprocesador -> Microprocesador
-ejecutarPrograma unMicroprocesador = ejecutarProgramaHastaError unMicroprocesador (memoriaPrograma unMicroprocesador) 
+ejecutarPrograma unMicroprocesador = ejecutarProgramaHastaError unMicroprocesador (memoriaPrograma unMicroprocesador)
 
 ejecutarProgramaHastaError :: Microprocesador -> [Instruccion] -> Microprocesador
 ejecutarProgramaHastaError unMicroprocesador listaInstrucciones = foldl (flip validarYAplicar) unMicroprocesador listaInstrucciones
@@ -162,3 +163,4 @@ Sin embargo, al querer mostrar una lista infinita completa u operar sobre absolu
 El único caso donde podemos evaluar una lista infinita es si tiene una condicion de corte que se cumpla. Esto gracias a una característica de haskell que es lazy
 evaluation, que nos permite por ejemplo saber si una lista infinita no está ordenada. Ya que al encontrar un sólo elemento no ordenado, haskell dejará de evaluar
 y devolverá False-}
+--asdasd
