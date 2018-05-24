@@ -10,26 +10,26 @@ microDesorden = Microprocesador {posiciones = [2, 5, 1, 0, 6, 9], acumuladorA = 
 i9 = Microprocesador {posiciones = memoriaInfinita, acumuladorA = 7, acumuladorB = 4, programCounter = 0, ultimoError = [], memoriaPrograma = [nop,nop,nop]}
 --Instrucciones del microprocesador
 nop :: Instruccion
-nop = aumentarPC
+nop = id
 
 lodv :: Int -> Instruccion
-lodv valor = aumentarPC.(valorToAcumuladorA valor)
+lodv valor = (valorToAcumuladorA valor)
 
 swap :: Instruccion
-swap microprocesador = (aumentarPC.(intercambio (acumuladorA microprocesador) (acumuladorB microprocesador))) microprocesador
+swap microprocesador = (intercambio (acumuladorA microprocesador) (acumuladorB microprocesador)) microprocesador
 
 add ::Instruccion
-add =  (aumentarPC).(valorToAcumuladorB 0).(sumarAcumuladores)
+add =  (valorToAcumuladorB 0).(sumarAcumuladores)
 
 divide :: Instruccion
-divide (Microprocesador posiciones acumuladorA 0 programCounter ultimoError programa) = (Microprocesador posiciones acumuladorA 0 (programCounter + 1) "DIVISION BY ZERO" programa)
-divide microprocesador = (aumentarPC.(valorToAcumuladorB 0).(valorToAcumuladorA (dividirAcumuladores microprocesador))) microprocesador
+divide (Microprocesador posiciones acumuladorA 0 programCounter ultimoError programa) = (Microprocesador posiciones acumuladorA 0 programCounter "DIVISION BY ZERO" programa)
+divide microprocesador = (valorToAcumuladorB 0).(valorToAcumuladorA (dividirAcumuladores microprocesador)) $ microprocesador
 
 str :: Int-> Int-> Instruccion
-str addr val = (aumentarPC.(guardarElemento addr val))
+str addr val = (guardarElemento addr val)
 
 lod :: Int -> Instruccion
-lod addr microprocesador= (aumentarPC.(valorToAcumuladorA (obtenerValorMemoria addr microprocesador))) microprocesador
+lod addr microprocesador= (valorToAcumuladorA (obtenerValorMemoria addr microprocesador)) microprocesador
 
 --Funciones Auxiliares
 
@@ -43,7 +43,10 @@ memoriaInfinita :: [Int]
 memoriaInfinita = repeat 0 -- Memoria infinita inicializada 0
 
 ejecutarInstrucciones ::[Instruccion]->Microprocesador->Microprocesador
-ejecutarInstrucciones listaInstrucciones = (componerInstrucciones listaInstrucciones)
+ejecutarInstrucciones listaInstrucciones = (componerInstrucciones (map (\instruccion->ejecutarInstruccion $ instruccion) listaInstrucciones))
+
+ejecutarInstruccion :: Instruccion -> Microprocesador -> Microprocesador
+ejecutarInstruccion instruccion = aumentarPC.instruccion
 
 componerInstrucciones :: [Instruccion] -> Instruccion
 componerInstrucciones = foldr (.) id
@@ -107,7 +110,7 @@ ejecutarProgramaHastaError :: Microprocesador -> [Instruccion] -> Microprocesado
 ejecutarProgramaHastaError unMicroprocesador listaInstrucciones = foldl (flip validarYAplicar) unMicroprocesador listaInstrucciones
 
 validarYAplicar :: Instruccion -> Microprocesador -> Microprocesador
-validarYAplicar instruccion unMicroprocesador | instruccionConError unMicroprocesador instruccion = unMicroprocesador{ultimoError="Error al ejecutar una instruccion del programa"} | ultimoError unMicroprocesador /= [] = unMicroprocesador | otherwise = instruccion unMicroprocesador
+validarYAplicar instruccion unMicroprocesador | instruccionConError unMicroprocesador instruccion = unMicroprocesador{ultimoError="Error al ejecutar una instruccion del programa"} | ultimoError unMicroprocesador /= [] = unMicroprocesador | otherwise = ejecutarInstruccion instruccion unMicroprocesador
 
 instruccionConError :: Microprocesador -> Instruccion ->  Bool
 instruccionConError unMicroprocesador instruccion = (/= "").ultimoError.instruccion $ unMicroprocesador
@@ -154,4 +157,8 @@ ejecutarProgramaAMemoriaInfinita programa= (acumuladorA.ejecutarPrograma.(cargar
 
 --Al preguntar si la memoria esta ordenada el programa nunca va a terminar de evaluar al no llegar a una condicion de corte
 
---La lista infinita es algo definido en haskell que no causa error, por eso podemos tener un microcontrolador con "memoria infinita" y es valido. Sin embargo, al querer mostrar una lista infinita completa u operar sobre absolutamente todos sus elementos, la ejecución no se detiene nunca.
+{-La lista infinita es algo definido en haskell que no causa error, por eso podemos tener un microcontrolador con "memoria infinita" y es valido.
+Sin embargo, al querer mostrar una lista infinita completa u operar sobre absolutamente todos sus elementos, la ejecución (ya sea de mostrar o de operar) no se detiene nunca.
+El único caso donde podemos evaluar una lista infinita es si tiene una condicion de corte que se cumpla. Esto gracias a una característica de haskell que es lazy
+evaluation, que nos permite por ejemplo saber si una lista infinita no está ordenada. Ya que al encontrar un sólo elemento no ordenado, haskell dejará de evaluar
+y devolverá False-}
